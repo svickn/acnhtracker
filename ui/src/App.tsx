@@ -1,11 +1,7 @@
-import React from 'react'
 import {
   Container,
   Typography,
   Box,
-  Card,
-  CardContent,
-  Button,
   CircularProgress,
   Alert,
   Paper,
@@ -13,14 +9,14 @@ import {
   Toolbar,
   Chip
 } from '@mui/material'
-// import { GitHub as GitHubIcon } from '@mui/icons-material'
-import { useFishData } from './api'
+import { useFishData, useBugData, useSeaCreatureData } from './api'
 
 function App() {
-  const [count, setCount] = React.useState(0)
-  const { response, error, loading } = useFishData()
+  const { response: fishResponse, error: fishError, loading: fishLoading } = useFishData()
+  const { response: bugResponse, error: bugError, loading: bugLoading } = useBugData()
+  const { response: seaResponse, error: seaError, loading: seaLoading } = useSeaCreatureData()
 
-  if (loading) {
+  if (fishLoading || bugLoading || seaLoading) {
     return (
       <Box
         display="flex"
@@ -33,11 +29,11 @@ function App() {
     )
   }
 
-  if (error) {
+  if (fishError || bugError || seaError) {
     return (
       <Container maxWidth="md" sx={{ mt: 4 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
-          Error loading fish data: {error}
+          Error loading data: {fishError || bugError || seaError}
         </Alert>
       </Container>
     )
@@ -50,7 +46,6 @@ function App() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             ACNH Fish Tracker
           </Typography>
-          {/* GitHub icon button removed temporarily */}
         </Toolbar>
       </AppBar>
 
@@ -59,33 +54,17 @@ function App() {
           Animal Crossing: New Horizons
         </Typography>
         <Typography variant="h5" component="h2" gutterBottom align="center" color="text.secondary">
-          Fish Collection Tracker
+          Animal Crossing: New Horizons Collection Tracker
         </Typography>
 
-        <Box sx={{ mt: 4, mb: 4 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Counter Example
-              </Typography>
-              <Button
-                variant="contained"
-                onClick={() => setCount((count) => count + 1)}
-                sx={{ mb: 2 }}
-              >
-                Count is {count}
-              </Button>
-            </CardContent>
-          </Card>
-        </Box>
-
-        <Box sx={{ mt: 3 }}>
+        {[{name: "Fish", collection: fishResponse}, {name: "Bugs", collection: bugResponse}, {name: "Sea Creatures", collection: seaResponse}].map(({name, collection}) => (
+        <Box sx={{ mt: 3 }} key={name}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
-              Fish Data
+              {name} Collection
             </Typography>
             <Chip 
-              label={`${Array.isArray(response) ? response.length : 0} fish found`}
+              label={`${Array.isArray(collection) ? collection.length : 0} ${name} found`}
               color="primary"
               sx={{ mb: 2 }}
             />
@@ -100,10 +79,10 @@ function App() {
                 fontSize: '0.875rem'
               }}
             >
-              <pre>{JSON.stringify(response, null, 2)}</pre>
+              <pre>{JSON.stringify(collection, null, 2)}</pre>
             </Box>
           </Paper>
-        </Box>
+        </Box>))}
       </Container>
     </Box>
   )
