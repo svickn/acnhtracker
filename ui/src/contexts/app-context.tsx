@@ -1,11 +1,22 @@
 import { createContext, useContext } from 'react'
 
 export interface Profile {
+  id: string
+  name: string
   dateTime?: string
   region: string
 }
 
 export interface AppContextType {
+  // Profile management
+  profiles: Profile[]
+  currentProfileIndex: number
+  currentProfile: Profile
+  addProfile: (name: string) => void
+  removeProfile: (index: number) => void
+  setCurrentProfile: (index: number) => void
+  updateCurrentProfile: (updates: Partial<Profile>) => void
+  
   // Date and time state
   dateAndTime: Date
   setDateAndTime: (date: Date) => void

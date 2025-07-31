@@ -8,6 +8,7 @@ import {
 } from '@mui/material'
 import { DateTime } from './components/date-time'
 import { FishDisplay, BugDisplay, SeaCreatureDisplay } from './components/item-display'
+import { ProfileSelector } from './components/profile-selector'
 import { AppProvider } from './contexts/app-provider'
 
 
@@ -36,6 +37,8 @@ function AppContent() {
           Animal Crossing: New Horizons Collection Tracker
         </Typography>
 
+        <ProfileSelector />
+        
         <FishDisplay />
         <BugDisplay />
         <SeaCreatureDisplay />
