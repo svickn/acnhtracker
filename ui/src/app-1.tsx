@@ -10,6 +10,7 @@ import { DateTime } from './components/date-time'
 import { FishDisplay, BugDisplay, SeaCreatureDisplay } from './components/item-display'
 import { ProfileSelector } from './components/profile-selector'
 import { AppProvider } from './contexts/app-provider'
+import { Route, Switch } from 'wouter'
 
 
 
@@ -36,12 +37,12 @@ function AppContent() {
         <Typography variant="h5" component="h2" gutterBottom align="center" color="text.secondary">
           Animal Crossing: New Horizons Collection Tracker
         </Typography>
-
         <ProfileSelector />
-        
-        <FishDisplay />
-        <BugDisplay />
-        <SeaCreatureDisplay />
+        <Switch>
+          <Route path="/" component={FishDisplay} />
+          <Route path="/bugs" component={BugDisplay} />
+          <Route path="/sea-creatures" component={SeaCreatureDisplay} />
+        </Switch>
       </Container>
     </Box>
   )
