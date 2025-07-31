@@ -15,9 +15,9 @@ export function AppProvider({ children }: AppProviderProps) {
         return JSON.parse(stored)
       } catch (error) {
         console.warn('Failed to parse acnh-profile from localStorage:', error)
-        return { region: 'north' }
       }
     }
+    return { region: 'north' }
   })
   
   const [currentDate, setCurrentDate] = useState(new Date())
