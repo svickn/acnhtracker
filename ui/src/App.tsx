@@ -29,6 +29,7 @@ function CollectionDisplay({name, hook}: {name: string, hook: () => ApiData}) {
       const availableItems = getCurrentlyAvailableItems(response, region as Region, dateAndTime)
       setAvailableItems(availableItems)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response, region, month, time])
 
   if (loading) {

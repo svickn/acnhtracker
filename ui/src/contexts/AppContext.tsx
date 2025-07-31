@@ -1,5 +1,10 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 
+export interface Profile {
+  dateTime?: string
+  region: string
+}
+
 interface AppContextType {
   // Date and time state
   dateAndTime: Date
@@ -21,18 +26,20 @@ interface AppProviderProps {
 }
 
 export function AppProvider({ children }: AppProviderProps) {
-  // Date and time state
-  const [storedDate, setStoredDate] = useState<string | null>(() => {
-    const stored = localStorage.getItem('acnh-date-time')
-    return stored !== null ? stored : null
+  // Load profile from localStorage with migration support
+  const [profile, setProfileState] = useState<Profile>(() => {
+    const stored = localStorage.getItem('acnh-profile')
+    if (stored !== null) {
+      try {
+        return JSON.parse(stored)
+      } catch (error) {
+        console.warn('Failed to parse acnh-profile from localStorage:', error)
+        return { region: 'north' }
+      }
+    }
   })
+  
   const [currentDate, setCurrentDate] = useState(new Date())
-
-  // Region state
-  const [region, setRegionState] = useState<string>(() => {
-    const stored = localStorage.getItem('acnh-region')
-    return stored !== null ? stored : 'north'
-  })
 
   // Update current date every second
   useEffect(() => {
@@ -44,29 +51,35 @@ export function AppProvider({ children }: AppProviderProps) {
   }, [])
 
   // If stored date is null, use current date, otherwise use stored date
-  const dateAndTime = storedDate === null ? currentDate : new Date(storedDate)
+  const dateAndTime = profile.dateTime === undefined ? currentDate : new Date(profile.dateTime)
   const month = dateAndTime.getMonth() + 1
   const time = dateAndTime.getHours()
+  const region = profile.region
 
   const setDateAndTime = (newDate: Date) => {
     const dateString = newDate.toISOString()
-    setStoredDate(dateString)
-    localStorage.setItem('acnh-date-time', dateString)
+    const newProfile = { ...profile, dateTime: dateString }
+    setProfileState(newProfile)
+    localStorage.setItem('acnh-profile', JSON.stringify(newProfile))
   }
 
   const clearDateAndTime = () => {
-    setStoredDate(null)
-    localStorage.removeItem('acnh-date-time')
+    const newProfile = { ...profile }
+    delete newProfile.dateTime
+    setProfileState(newProfile)
+    localStorage.setItem('acnh-profile', JSON.stringify(newProfile))
   }
 
   const setRegion = (newRegion: string) => {
-    setRegionState(newRegion)
-    localStorage.setItem('acnh-region', newRegion)
+    const newProfile = { ...profile, region: newRegion }
+    setProfileState(newProfile)
+    localStorage.setItem('acnh-profile', JSON.stringify(newProfile))
   }
 
   const clearRegion = () => {
-    setRegionState('north')
-    localStorage.removeItem('acnh-region')
+    const newProfile = { ...profile, region: 'north' }
+    setProfileState(newProfile)
+    localStorage.setItem('acnh-profile', JSON.stringify(newProfile))
   }
 
   const value: AppContextType = {
@@ -87,7 +100,7 @@ export function AppProvider({ children }: AppProviderProps) {
   )
 }
 
-export function useAppContext() {
+export function useAppContext(): AppContextType {
   const context = useContext(AppContext)
   if (context === undefined) {
     throw new Error('useAppContext must be used within an AppProvider')
