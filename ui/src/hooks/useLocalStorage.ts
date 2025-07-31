@@ -5,26 +5,21 @@ export function useLocalStorage<T>(
   defaultValue: T
 ): [T, (value: T) => void, () => void] {
   // Initialize state with default value
-  const [value, setValue] = useState<T>(defaultValue)
-
-  // Load from localStorage on mount and listen for changes
-  useEffect(() => {
-    const loadFromStorage = () => {
-      const stored = localStorage.getItem(key)
-      if (stored !== null) {
-        try {
-          setValue(JSON.parse(stored))
-        } catch (error) {
-          console.warn(`Failed to parse localStorage value for key "${key}":`, error)
-          setValue(defaultValue)
-        }
+  const [value, setValue] = useState<T>(() => {
+    const stored = localStorage.getItem(key)
+    if (stored !== null) {
+      try {
+        return JSON.parse(stored)
+      } catch (error) {
+        console.warn(`Failed to parse localStorage value for key "${key}":`, error)
+        return defaultValue
       }
     }
+    return defaultValue
+  })
 
-    // Load initial value
-    loadFromStorage()
-
-    // Listen for storage events from other components
+  // Listen for storage events from other components
+  useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === key && e.newValue !== null) {
         try {

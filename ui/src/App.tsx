@@ -16,6 +16,7 @@ import type { ApiData, ApiResponse, Region } from './api/types'
 import { useDateAndTime } from './hooks/useDateTime'
 import { useRegion } from './hooks/useDateTime'
 import { getCurrentlyAvailableItems } from './api/utils'
+import { AppProvider } from './contexts/AppContext'
 
 function CollectionDisplay({name, hook}: {name: string, hook: () => ApiData}) {
   const { response, error, loading } = hook()
@@ -115,7 +116,7 @@ function SeaCreatureDisplay() {
 }
 
 
-function App() {
+function AppContent() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -143,6 +144,14 @@ function App() {
         <SeaCreatureDisplay />
       </Container>
     </Box>
+  )
+}
+
+function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   )
 }
 
