@@ -1,25 +1,6 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-
-export interface Profile {
-  dateTime?: string
-  region: string
-}
-
-interface AppContextType {
-  // Date and time state
-  dateAndTime: Date
-  setDateAndTime: (date: Date) => void
-  clearDateAndTime: () => void
-  month: number
-  time: number
-  
-  // Region state
-  region: string
-  setRegion: (region: string) => void
-  clearRegion: () => void
-}
-
-const AppContext = createContext<AppContextType | undefined>(undefined)
+import { useEffect, useState, type ReactNode } from "react"
+import type { AppContextType, Profile } from "./app-context"
+import { AppContext } from "./app-context"
 
 interface AppProviderProps {
   children: ReactNode
@@ -99,11 +80,3 @@ export function AppProvider({ children }: AppProviderProps) {
     </AppContext.Provider>
   )
 }
-
-export function useAppContext(): AppContextType {
-  const context = useContext(AppContext)
-  if (context === undefined) {
-    throw new Error('useAppContext must be used within an AppProvider')
-  }
-  return context
-} 

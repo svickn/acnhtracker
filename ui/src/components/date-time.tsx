@@ -5,7 +5,8 @@ import { useState } from 'react'
 import { Box, Button, Typography, Modal } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import dayjs, { Dayjs } from 'dayjs'
-import { useDateAndTime, useRegion } from '../hooks/useDateTime'
+import { useDateAndTime } from '../hooks/use-date-time'
+import { useRegion } from '../hooks/use-region'
 
 export const DateTime = () => {
   const [dateAndTime, setDateAndTime, clearDateAndTime] = useDateAndTime()

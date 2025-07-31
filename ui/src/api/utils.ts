@@ -12,24 +12,20 @@ const checkMonth = (month:number, itemRegion:RegionResponse) => {
 const getHours = (availability:string) => {
   if (availability === "NA") return [];
   if (availability === "All day") return Array.from({ length: 24 }, (_, i) => i);
-  console.log("Processing availability:", availability);
   
   const [start, end] = availability.split(" – ").length > 1 ? availability.split(" – ") : availability.split(" – ");
-  console.log("Split into start:", start, "end:", end);
   
   // Parse start time
   const startParts = start.trim().split(" ");
   let startHour = parseInt(startParts[0]);
   if (startParts[1] === "PM" && startHour !== 12) startHour += 12;
   if (startParts[1] === "AM" && startHour === 12) startHour = 0;
-  console.log("Start hour parsed:", startHour);
   
   // Parse end time
   const endParts = end.trim().split(" ");
   let endHour = parseInt(endParts[0]);
   if (endParts[1] === "PM" && endHour !== 12) endHour += 12;
   if (endParts[1] === "AM" && endHour === 12) endHour = 0;
-  console.log("End hour parsed:", endHour);
   
   // Handle time ranges that cross midnight
   if (endHour <= startHour) {
@@ -41,13 +37,10 @@ const getHours = (availability:string) => {
     for (let hour = 0; hour <= endHour; hour++) {
       hours.push(hour);
     }
-    console.log("Crossing midnight, hours:", hours);
     return hours;
   } else {
     // Normal range within same day
-    const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
-    console.log("Normal range, hours:", hours);
-    return hours;
+    return Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);;
   }
 }
 
@@ -62,8 +55,6 @@ export const getCurrentlyAvailableItems = (items: ApiResponse[], region:Region, 
   return items.filter((item) => {
     const itemRegion = region === 'north' ? item.north : item.south;
 
-    console.log(itemRegion);
-    
     return checkMonth(month, itemRegion) && checkHour(month, time, itemRegion);
   });
 }
