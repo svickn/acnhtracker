@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import {
   Container,
   Typography,
@@ -11,13 +12,25 @@ import {
 } from '@mui/material'
 import { useFishData, useBugData, useSeaCreatureData } from './api'
 import { DateTime } from './components/datetime'
+import type { ApiData, ApiResponse, Region } from './api/types'
+import { useDateAndTime } from './hooks/useDateTime'
+import { useRegion } from './hooks/useDateTime'
+import { getCurrentlyAvailableItems } from './api/utils'
 
-function App() {
-  const { response: fishResponse, error: fishError, loading: fishLoading } = useFishData()
-  const { response: bugResponse, error: bugError, loading: bugLoading } = useBugData()
-  const { response: seaResponse, error: seaError, loading: seaLoading } = useSeaCreatureData()
+function CollectionDisplay({name, hook}: {name: string, hook: () => ApiData}) {
+  const { response, error, loading } = hook()
+  const [availableItems, setAvailableItems] = useState<ApiResponse[]>([])
+  const [dateAndTime,,, month, time] = useDateAndTime()
+  const [region] = useRegion()
 
-  if (fishLoading || bugLoading || seaLoading) {
+  useEffect(() => {
+    if (response) {
+      const availableItems = getCurrentlyAvailableItems(response, region as Region, dateAndTime)
+      setAvailableItems(availableItems)
+    }
+  }, [response, region, month, time])
+
+  if (loading) {
     return (
       <Box
         display="flex"
@@ -30,22 +43,85 @@ function App() {
     )
   }
 
-  if (fishError || bugError || seaError) {
+  if (error) {
     return (
       <Container maxWidth="md" sx={{ mt: 4 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
-          Error loading data: {fishError || bugError || seaError}
+          Error loading data: {error}
         </Alert>
       </Container>
     )
   }
 
+  if (!response) {
+    return <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Alert severity="error" sx={{ mb: 2 }}>
+        No data found
+      </Alert>
+    </Container>
+  }
+
+  const availableItemCount = availableItems.length
+
+  return <Box sx={{ mt: 3 }} key={name}>
+  <Paper sx={{ p: 3 }}>
+    <Typography variant="h6" gutterBottom>
+      {name} Collection
+    </Typography>
+    <Chip 
+      label={`${availableItemCount} ${name} found`}
+      color="primary"
+      sx={{ mb: 2 }}
+    />
+    <Box
+      sx={{
+        maxHeight: 400,
+        overflow: 'auto',
+        backgroundColor: 'grey.50',
+        p: 2,
+        borderRadius: 1,
+        fontFamily: 'monospace',
+        fontSize: '0.875rem'
+      }}
+    >
+      {availableItems.map((item) => (
+        <ItemDisplay key={item.name} item={item} />
+      ))}
+    </Box>
+  </Paper>
+</Box>
+}
+
+function ItemDisplay({item}: {item: ApiResponse}) {
+  // display the item name, image, and location
+  // use material ui components
+  return <div>
+    <Typography variant="h6">{item.name}</Typography>
+    <img src={item.image_url} alt={item.name} />
+    <Typography variant="body1">{item.location}</Typography>
+  </div>
+}
+
+function FishDisplay() {
+  return <CollectionDisplay name="Fish" hook={useFishData} />
+}
+
+function BugDisplay() {
+  return <CollectionDisplay name="Bug" hook={useBugData} />
+}
+
+function SeaCreatureDisplay() {
+  return <CollectionDisplay name="Sea Creature" hook={useSeaCreatureData} />
+}
+
+
+function App() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            ACNH Fish Tracker
+            ACNH Collection Tracker
           </Typography>
         </Toolbar>
       </AppBar>
@@ -62,32 +138,9 @@ function App() {
           Animal Crossing: New Horizons Collection Tracker
         </Typography>
 
-        {[{name: "Fish", collection: fishResponse}, {name: "Bugs", collection: bugResponse}, {name: "Sea Creatures", collection: seaResponse}].map(({name, collection}) => (
-        <Box sx={{ mt: 3 }} key={name}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              {name} Collection
-            </Typography>
-            <Chip 
-              label={`${Array.isArray(collection) ? collection.length : 0} ${name} found`}
-              color="primary"
-              sx={{ mb: 2 }}
-            />
-            <Box
-              sx={{
-                maxHeight: 400,
-                overflow: 'auto',
-                backgroundColor: 'grey.50',
-                p: 2,
-                borderRadius: 1,
-                fontFamily: 'monospace',
-                fontSize: '0.875rem'
-              }}
-            >
-              <pre>{JSON.stringify(collection, null, 2)}</pre>
-            </Box>
-          </Paper>
-        </Box>))}
+        <FishDisplay />
+        <BugDisplay />
+        <SeaCreatureDisplay />
       </Container>
     </Box>
   )

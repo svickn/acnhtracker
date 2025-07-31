@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useLocalStorage } from './useLocalStorage'
 
-export function useDateAndTime():[Date, (date:Date) => void, () => void] {
-  const [storedDate, setStoredDate, clearStoredDate] = useLocalStorage<Date | null>('acnh-date-time', null)
+export function useDateAndTime():[Date, (date:Date) => void, () => void, number, number] {
+  const [storedDate, setStoredDate, clearStoredDate] = useLocalStorage<string | null>('acnh-date-time', null)
   const [currentDate, setCurrentDate] = useState(new Date())
 
   // Update current date every second
@@ -15,17 +15,20 @@ export function useDateAndTime():[Date, (date:Date) => void, () => void] {
   }, [])
 
   // If stored date is null, use current date, otherwise use stored date
-  const date = storedDate || currentDate
+  const date = storedDate === null ? currentDate : new Date(storedDate)
 
   const setDate = (newDate: Date) => {
-    setStoredDate(newDate)
+    setStoredDate(newDate.toISOString())
   }
 
   const clearDate = () => {
     clearStoredDate()
   }
 
-  return [date, setDate, clearDate]
+  const month = date.getMonth() + 1
+  const time = date.getHours()
+
+  return [date, setDate, clearDate, month, time]
 }
 
 export function useRegion():[string, (region:string) => void, () => void] {

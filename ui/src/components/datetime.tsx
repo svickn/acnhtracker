@@ -33,7 +33,7 @@ export const DateTime = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* Format date like August 1st */}
-      <Typography variant="h6">{dayjs(dateAndTime).format('MMMM D')}, {dayjs(dateAndTime).format('h:mm:ss A')}</Typography>
+      <Typography variant="h6">{dayjs(dateAndTime).format('MMMM D')}, {dayjs(dateAndTime).format('h:mm A')}</Typography>
       <Typography variant="h6" sx={{ textTransform: 'capitalize', color: 'text.secondary' }}>
         Region: {region}
       </Typography>

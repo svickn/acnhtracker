@@ -1,51 +1,13 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import type { ApiData, ApiResponse } from './types';
 
 axios.defaults.headers.common['X-API-KEY'] = '921748d0-02ee-429f-a16d-dfce8775722e'
 axios.defaults.baseURL = 'https://api.nookipedia.com'
 
-const useAxios = (url:string) => {
-  const [response, setResponse] = useState(null);
-  const [error, setError] = useState('');
-  const [loading, setloading] = useState(true);
-
-  const fetchData = () => {
-      axios
-          .get(url)
-          .then((res) => {
-              setResponse(res.data);
-          })
-          .catch((err) => {
-              setError(err instanceof Error ? err.message : 'An error occurred');
-          })
-          .finally(() => {
-              setloading(false);
-          });
-  };
-
-  useEffect(() => {
-      fetchData();
-  });
-
-  // custom hook returns value
-  return { response, error, loading };
-};
-
-export const useFishApi = () => {
-  return useAxios('/nh/fish');
-}
-
-export const useBugApi = () => {
-  return useAxios('/nh/bugs');
-}
-
-export const useSeaCreatureApi = () => {
-  return useAxios('/nh/sea');
-}
-
 // Generic hook for data caching with localStorage
-export const useData = (url: string, cacheKey: string) => {
-  const [response, setResponse] = useState<unknown>(null);
+export const useData = (url: string, cacheKey: string):ApiData => {
+  const [response, setResponse] = useState<ApiResponse[] | null | undefined>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
