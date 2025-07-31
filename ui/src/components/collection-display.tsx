@@ -4,7 +4,7 @@ import { useRegion } from "../hooks/use-region"
 import { getCurrentlyAvailableItems } from "../api/utils"
 import type { ApiData, ApiResponse, Region } from "../api/types"
 import { useEffect } from "react"
-import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography } from "@mui/material"
+import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery } from "@mui/material"
 import { ItemDisplay } from "./item-display"
 
 export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiData}) {
@@ -12,6 +12,9 @@ export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiDa
   const [availableItems, setAvailableItems] = useState<ApiResponse[]>([])
   const [dateAndTime,,, month, time] = useDateAndTime()
   const [region] = useRegion()
+
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   useEffect(() => {
     if (response) {
@@ -27,16 +30,16 @@ export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiDa
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="100vh"
+        minHeight={isMobile ? "50vh" : "100vh"}
       >
-        <CircularProgress size={60} />
+        <CircularProgress size={isMobile ? 40 : 60} />
       </Box>
     )
   }
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Container maxWidth="md" sx={{ mt: isMobile ? 2 : 4 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
           Error loading data: {error}
         </Alert>
@@ -45,7 +48,7 @@ export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiDa
   }
 
   if (!response) {
-    return <Container maxWidth="md" sx={{ mt: 4 }}>
+    return <Container maxWidth="md" sx={{ mt: isMobile ? 2 : 4 }}>
       <Alert severity="error" sx={{ mb: 2 }}>
         No data found
       </Alert>
@@ -54,25 +57,24 @@ export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiDa
 
   const availableItemCount = availableItems.length
 
-  return <Box sx={{ mt: 3 }} key={name}>
-  <Paper sx={{ p: 3 }}>
-    <Typography variant="h6" gutterBottom>
+  return <Box sx={{ mt: isMobile ? 2 : 3 }} key={name}>
+  <Paper sx={{ p: isMobile ? 2 : 3 }}>
+    <Typography variant={isMobile ? "h6" : "h5"} gutterBottom>
       {name} Collection
     </Typography>
     <Chip 
       label={`${availableItemCount} ${name} found`}
       color="primary"
-      sx={{ mb: 2 }}
+      sx={{ mb: isMobile ? 1.5 : 2 }}
     />
     <Box
       sx={{
-        maxHeight: 400,
-        overflow: 'auto',
+        maxHeight: isMobile ? 300 : 400,
         backgroundColor: 'grey.50',
-        p: 2,
+        p: isMobile ? 1.5 : 2,
         borderRadius: 1,
         fontFamily: 'monospace',
-        fontSize: '0.875rem'
+        fontSize: isMobile ? '0.8rem' : '0.875rem'
       }}
     >
       {availableItems.map((item) => (

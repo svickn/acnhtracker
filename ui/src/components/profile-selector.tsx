@@ -10,7 +10,9 @@ import {
   ListItemSecondaryAction,
   IconButton,
   Paper,
-  Divider
+  Divider,
+  useTheme,
+  useMediaQuery
 } from '@mui/material'
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material'
 import { useAppContext } from '../contexts/app-context'
@@ -29,6 +31,10 @@ export function ProfileSelector() {
   const [newProfileName, setNewProfileName] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [editingName, setEditingName] = useState('')
+
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const handleAddProfile = () => {
     if (newProfileName.trim()) {
@@ -61,18 +67,24 @@ export function ProfileSelector() {
   }
 
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
-      <Typography variant="h6" gutterBottom>
+    <Paper sx={{ p: isMobile ? 1.5 : 2, mb: isMobile ? 1.5 : 2 }}>
+      <Typography variant={isMobile ? "h6" : "h5"} gutterBottom>
         Profiles
       </Typography>
       
       {/* Current Profile Display */}
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
+      <Box sx={{ mb: isMobile ? 1.5 : 2 }}>
+        <Typography variant={isMobile ? "body1" : "subtitle1"} gutterBottom>
           Current Profile
         </Typography>
         {isEditing ? (
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 1, 
+            alignItems: 'center',
+            flexDirection: isSmallMobile ? 'column' : 'row',
+            '& > *': { width: isSmallMobile ? '100%' : 'auto' }
+          }}>
             <TextField
               size="small"
               value={editingName}
@@ -82,13 +94,20 @@ export function ProfileSelector() {
                 if (e.key === 'Escape') handleCancelEdit()
               }}
               autoFocus
+              fullWidth={isSmallMobile}
             />
-            <Button size="small" variant="contained" onClick={handleSaveEdit}>
-              Save
-            </Button>
-            <Button size="small" variant="outlined" onClick={handleCancelEdit}>
-              Cancel
-            </Button>
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 1,
+              width: isSmallMobile ? '100%' : 'auto'
+            }}>
+              <Button size="small" variant="contained" onClick={handleSaveEdit} fullWidth={isSmallMobile}>
+                Save
+              </Button>
+              <Button size="small" variant="outlined" onClick={handleCancelEdit} fullWidth={isSmallMobile}>
+                Cancel
+              </Button>
+            </Box>
           </Box>
         ) : (
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -109,11 +128,11 @@ export function ProfileSelector() {
         )}
       </Box>
 
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: isMobile ? 1.5 : 2 }} />
 
       {/* Profile List */}
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
+      <Box sx={{ mb: isMobile ? 1.5 : 2 }}>
+        <Typography variant={isMobile ? "body1" : "subtitle1"} gutterBottom>
           All Profiles
         </Typography>
         <List dense>
@@ -123,17 +142,34 @@ export function ProfileSelector() {
               sx={{
                 bgcolor: index === currentProfileIndex ? 'primary.light' : 'transparent',
                 borderRadius: 1,
-                mb: 0.5
+                mb: 0.5,
+                flexDirection: isSmallMobile ? 'column' : 'row',
+                alignItems: isSmallMobile ? 'flex-start' : 'center'
               }}
             >
-              <ListItemText primary={profile.name} />
+              <ListItemText 
+                primary={profile.name} 
+                sx={{ 
+                  flex: 1,
+                  mb: isSmallMobile ? 1 : 0
+                }}
+              />
               {index !== currentProfileIndex && (
-                <ListItemSecondaryAction>
+                <ListItemSecondaryAction sx={{ 
+                  position: isSmallMobile ? 'static' : 'absolute',
+                  right: isSmallMobile ? 'auto' : 16,
+                  top: isSmallMobile ? 'auto' : '50%',
+                  transform: isSmallMobile ? 'none' : 'translateY(-50%)',
+                  display: 'flex',
+                  gap: 1,
+                  width: isSmallMobile ? '100%' : 'auto'
+                }}>
                   <Button 
                     size="small" 
                     variant="outlined" 
                     onClick={() => setCurrentProfile(index)}
-                    sx={{ mr: 1 }}
+                    sx={{ mr: isSmallMobile ? 0 : 1 }}
+                    fullWidth={isSmallMobile}
                   >
                     Switch
                   </Button>
@@ -153,14 +189,20 @@ export function ProfileSelector() {
         </List>
       </Box>
 
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: isMobile ? 1.5 : 2 }} />
 
       {/* Add New Profile */}
       <Box>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant={isMobile ? "body1" : "subtitle1"} gutterBottom>
           Add New Profile
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 1, 
+          alignItems: 'center',
+          flexDirection: isSmallMobile ? 'column' : 'row',
+          '& > *': { width: isSmallMobile ? '100%' : 'auto' }
+        }}>
           <TextField
             size="small"
             value={newProfileName}
@@ -169,15 +211,17 @@ export function ProfileSelector() {
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleAddProfile()
             }}
-            sx={{ flex: 1 }}
+            sx={{ flex: isSmallMobile ? 'none' : 1 }}
+            fullWidth={isSmallMobile}
           />
           <Button 
             size="small" 
             variant="contained" 
             onClick={handleAddProfile}
             startIcon={<AddIcon />}
+            fullWidth={isSmallMobile}
           >
-            Add Profile
+            {isSmallMobile ? 'Add' : 'Add Profile'}
           </Button>
         </Box>
       </Box>
