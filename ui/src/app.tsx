@@ -13,22 +13,18 @@ import {
   ListItemIcon,
   ListItemText
 } from '@mui/material'
-import { DateTime } from './components/date-time'
 import { FishDisplay, BugDisplay, SeaCreatureDisplay } from './components/item-display'
 import { ProfileSelector } from './components/profile-selector'
 import { AppProvider } from './contexts/app-provider'
 import { Route, Router, Switch } from 'wouter'
 import { useHashLocation } from 'wouter/use-hash-location'
-import { useDateAndTime } from './hooks/use-date-time'
-import dayjs from 'dayjs'
 import { Menu as MenuIcon, Pets, BugReport, Water, Person } from '@mui/icons-material'
 import { useState } from 'react'
+import { DateTime } from './components/date-time'
 
 function NavBar() {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  const [dateAndTime] = useDateAndTime()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
@@ -65,16 +61,13 @@ function NavBar() {
         
         <Box sx={{ 
           display: 'flex', 
-          flexDirection: 'column', 
+          flexDirection: 'row',
           alignItems: 'center',
-          flex: 1
+          gap: 1,
+          flex: 1,
+          justifyContent: 'center'
         }}>
-          <Typography 
-            variant={isSmallMobile ? "body2" : isMobile ? "body1" : "h6"}
-            sx={{ fontWeight: 'medium' }}
-          >
-            {dayjs(dateAndTime).format('MMMM D')}, {dayjs(dateAndTime).format('h:mm A')}
-          </Typography>
+          <DateTime />
         </Box>
         
         <Box sx={{ flexGrow: 0 }}>
@@ -201,7 +194,7 @@ function AppContent() {
         mt: isMobile ? 1 : 2,
         mb: isMobile ? 1 : 2
       }}>
-        <DateTime />
+        {/* DateTime component is now part of NavBar */}
       </Box>
 
       <Container 

@@ -119,8 +119,7 @@ export function AppProvider({ children }: AppProviderProps) {
   }
 
   const clearDateAndTime = () => {
-    const newProfile = { ...currentProfile }
-    delete newProfile.dateTime
+    const newProfile = { ...currentProfile, dateTime: undefined }
     updateCurrentProfile(newProfile)
   }
 

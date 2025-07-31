@@ -45,7 +45,7 @@ const getHours = (availability:string) => {
 }
 
 const checkHour = (month:number, hour:number, itemRegion:RegionResponse) => {
-  const hours = getHours(itemRegion.times_by_month[month - 1]);
+  const hours = getHours(itemRegion.times_by_month[month]);
   return hours.includes(hour);
 }
 
