@@ -10,6 +10,7 @@ import {
   Chip
 } from '@mui/material'
 import { useFishData, useBugData, useSeaCreatureData } from './api'
+import { DateTime } from './components/datetime'
 
 function App() {
   const { response: fishResponse, error: fishError, loading: fishLoading } = useFishData()
@@ -48,6 +49,10 @@ function App() {
           </Typography>
         </Toolbar>
       </AppBar>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+        <DateTime />
+      </Box>
 
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom align="center">
