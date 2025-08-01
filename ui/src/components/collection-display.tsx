@@ -84,9 +84,11 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
         height: 'auto'
       }}
     >
-      {availableItems.map((item) => (
-        <ItemDisplay key={item.name} item={item} itemType={name} />
-      ))}
+      {availableItems
+        .sort((a, b) => a.number - b.number)
+        .map((item) => (
+          <ItemDisplay key={item.number} item={item} itemType={name} />
+        ))}
     </Box>
   </Paper>
 </Box>
