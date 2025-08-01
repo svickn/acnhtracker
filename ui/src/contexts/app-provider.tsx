@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react"
 import type { AppContextType, Profile } from "./app-context"
+import type { ItemType, ItemTrackingData, ItemTypeTracking } from "../api/types"
 import { AppContext } from "./app-context"
 
 interface AppProviderProps {
@@ -13,8 +14,24 @@ const generateId = () => Math.random().toString(36).substr(2, 9)
 const defaultProfile = (): Profile[] => [{
     id: generateId(),
     name: 'Default Profile',
-    region: 'north'
+    region: 'north',
+    fish: {},
+    bug: {},
+    'sea-creature': {}
   }]
+
+// Helper function to ensure a profile has all required tracking properties
+const ensureProfileTracking = (profile: Partial<Profile>): Profile => {
+  return {
+    id: profile.id || generateId(),
+    name: profile.name || 'Default Profile',
+    region: profile.region || 'north',
+    dateTime: profile.dateTime,
+    fish: profile.fish || {},
+    bug: profile.bug || {},
+    'sea-creature': profile['sea-creature'] || {}
+  }
+}
 
 
 export function AppProvider({ children }: AppProviderProps) {
@@ -23,7 +40,11 @@ export function AppProvider({ children }: AppProviderProps) {
     const stored = localStorage.getItem('acnh-profiles')
     if (stored !== null) {
       try {
-        return JSON.parse(stored)
+        const parsedProfiles = JSON.parse(stored)
+        // Ensure all profiles have the required tracking properties
+        return Array.isArray(parsedProfiles) 
+          ? parsedProfiles.map(ensureProfileTracking)
+          : defaultProfile()
       } catch (error) {
         console.warn('Failed to parse acnh-profiles from localStorage:', error)
         return defaultProfile()
@@ -85,7 +106,10 @@ export function AppProvider({ children }: AppProviderProps) {
     const newProfile: Profile = {
       id: generateId(),
       name,
-      region: 'north'
+      region: 'north',
+      fish: {},
+      bug: {},
+      'sea-creature': {}
     }
     setProfiles([...profiles, newProfile])
   }
@@ -131,6 +155,22 @@ export function AppProvider({ children }: AppProviderProps) {
     updateCurrentProfile({ region: 'north' })
   }
 
+  // Item tracking management functions
+  const getItemTracking = (itemType: ItemType, itemId: string): ItemTrackingData | undefined => {
+    const tracking = currentProfile[itemType]
+    return tracking?.[itemId]
+  }
+
+  const setItemTracking = (itemType: ItemType, itemId: string, tracking: ItemTrackingData) => {
+    const currentTracking = currentProfile[itemType] || {}
+    const updatedTracking = { ...currentTracking, [itemId]: tracking }
+    updateCurrentProfile({ [itemType]: updatedTracking })
+  }
+
+  const getItemTypeTracking = (itemType: ItemType): ItemTypeTracking => {
+    return currentProfile[itemType] || {}
+  }
+
   const value: AppContextType = {
     profiles,
     currentProfileIndex: validCurrentIndex,
@@ -139,6 +179,9 @@ export function AppProvider({ children }: AppProviderProps) {
     removeProfile,
     setCurrentProfile,
     updateCurrentProfile,
+    getItemTracking,
+    setItemTracking,
+    getItemTypeTracking,
     dateAndTime,
     setDateAndTime,
     clearDateAndTime,

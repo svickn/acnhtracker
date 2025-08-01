@@ -1,6 +1,13 @@
 export type Region = 'north' | 'south';
 export type ItemType = 'fish' | 'bug' | 'sea-creature';
 
+export type ItemTrackingData = {
+  caught: boolean;
+  donated: boolean;
+}
+
+export type ItemTypeTracking = Record<string, ItemTrackingData>;
+
 export type ApiData = {
   response: ApiResponse[] | null | undefined;
   error: string;
