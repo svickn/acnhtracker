@@ -69,7 +69,7 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
       {title} Collection
     </Typography>
     <Chip 
-      label={`${availableItemCount} ${name} found`}
+      label={`${availableItemCount} ${title}${availableItemCount === 1 ? '' : 's'} found`}
       color="primary"
       sx={{ mb: isMobile ? 1.5 : 2 }}
     />

@@ -9,7 +9,7 @@ const checkMonth = (month:number, itemRegion:RegionResponse) => {
 // if "All Day" return an array of hours from 0 to 23
 // example: "4 PM – 9 AM" returns [16, 17, 18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7, 8]
 // return an array of hours as numbers
-const getHours = (availability:string) => {
+const getHours = (availability:string):number[] => {
   if (availability === "NA") return [];
   if (availability === "All day") return Array.from({ length: 24 }, (_, i) => i);
 
@@ -65,5 +65,5 @@ export const getCurrentlyAvailableItems = (items: ApiResponse[], region:Region, 
 }
 
 export const snakeCaseToTitleCase = (str: string) => {
-  return str.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+  return str.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()).replace('-', ' ');
 }
