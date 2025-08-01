@@ -12,7 +12,12 @@ import {
   Paper,
   Divider,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from '@mui/material'
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material'
 import { useAppContext } from '../contexts/app-context'
@@ -31,6 +36,8 @@ export function ProfileSelector() {
   const [newProfileName, setNewProfileName] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [editingName, setEditingName] = useState('')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [profileToDelete, setProfileToDelete] = useState<number | null>(null)
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -45,8 +52,22 @@ export function ProfileSelector() {
 
   const handleRemoveProfile = (index: number) => {
     if (profiles.length > 1) {
-      removeProfile(index)
+      setProfileToDelete(index)
+      setDeleteDialogOpen(true)
     }
+  }
+
+  const confirmDelete = () => {
+    if (profileToDelete !== null) {
+      removeProfile(profileToDelete)
+      setDeleteDialogOpen(false)
+      setProfileToDelete(null)
+    }
+  }
+
+  const cancelDelete = () => {
+    setDeleteDialogOpen(false)
+    setProfileToDelete(null)
   }
 
   const handleStartEdit = () => {
@@ -225,6 +246,28 @@ export function ProfileSelector() {
           </Button>
         </Box>
       </Box>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={cancelDelete}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            Are you sure you want to delete "{profileToDelete !== null ? profiles[profileToDelete]?.name : ''}"? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDelete} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={confirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   )
 } 
