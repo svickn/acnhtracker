@@ -1,13 +1,17 @@
 import { Typography, Box, useTheme, useMediaQuery } from "@mui/material"
 
-import { useBugData, useFishData, useSeaCreatureData } from "../api"
 import type { ApiResponse } from "../api/types"
-import { CollectionDisplay } from "./collection-display"
+import { useRegion } from "../hooks/use-region"
+import { useDateAndTime } from "../hooks/use-date-time"
 
 export function ItemDisplay({item}: {item: ApiResponse}) {
+  const [region] = useRegion()
+  const [dateAndTime] = useDateAndTime()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
+  const itemRegion = region === 'north' ? item.north : item.south;
 
   return (
     <Box sx={{ 
@@ -44,20 +48,15 @@ export function ItemDisplay({item}: {item: ApiResponse}) {
         color="text.secondary"
         sx={{ textAlign: 'center' }}
       >
-        {item.location}
+        Location: {item.location}
+      </Typography>
+      <Typography 
+        variant={isMobile ? "body2" : "body1"}
+        color="text.secondary"
+        sx={{ textAlign: 'center' }}
+      >
+        Times: {itemRegion.times_by_month[dateAndTime.getMonth() + 1]}
       </Typography>
     </Box>
   )
-}
-
-export function FishDisplay() {
-  return <CollectionDisplay name="Fish" hook={useFishData} />
-}
-
-export function BugDisplay() {
-  return <CollectionDisplay name="Bug" hook={useBugData} />
-}
-
-export function SeaCreatureDisplay() {
-  return <CollectionDisplay name="Sea Creature" hook={useSeaCreatureData} />
 }

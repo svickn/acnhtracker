@@ -6,6 +6,7 @@ import type { ApiData, ApiResponse, Region } from "../api/types"
 import { useEffect } from "react"
 import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery } from "@mui/material"
 import { ItemDisplay } from "./item-display"
+import { useBugData, useFishData, useSeaCreatureData } from "../api"
 
 export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiData}) {
   const { response, error, loading } = hook()
@@ -58,7 +59,11 @@ export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiDa
   const availableItemCount = availableItems.length
 
   return <Box sx={{ mt: isMobile ? 2 : 3 }} key={name}>
-  <Paper sx={{ p: isMobile ? 2 : 3 }}>
+  <Paper sx={{ 
+    p: isMobile ? 2 : 3,
+    minHeight: 'fit-content',
+    height: 'auto'
+  }}>
     <Typography variant={isMobile ? "h6" : "h5"} gutterBottom>
       {name} Collection
     </Typography>
@@ -69,12 +74,13 @@ export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiDa
     />
     <Box
       sx={{
-        maxHeight: isMobile ? 300 : 400,
         backgroundColor: 'grey.50',
         p: isMobile ? 1.5 : 2,
         borderRadius: 1,
         fontFamily: 'monospace',
-        fontSize: isMobile ? '0.8rem' : '0.875rem'
+        fontSize: isMobile ? '0.8rem' : '0.875rem',
+        minHeight: 'fit-content',
+        height: 'auto'
       }}
     >
       {availableItems.map((item) => (
@@ -83,4 +89,16 @@ export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiDa
     </Box>
   </Paper>
 </Box>
+}
+
+export function FishDisplay() {
+  return <CollectionDisplay name="Fish" hook={useFishData} />
+}
+
+export function BugDisplay() {
+  return <CollectionDisplay name="Bug" hook={useBugData} />
+}
+
+export function SeaCreatureDisplay() {
+  return <CollectionDisplay name="Sea Creature" hook={useSeaCreatureData} />
 }

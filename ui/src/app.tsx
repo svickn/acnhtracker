@@ -13,11 +13,10 @@ import {
   ListItemIcon,
   ListItemText
 } from '@mui/material'
-import { FishDisplay, BugDisplay, SeaCreatureDisplay } from './components/item-display'
+import { FishDisplay, BugDisplay, SeaCreatureDisplay } from './components/collection-display'
 import { ProfileSelector } from './components/profile-selector'
 import { AppProvider } from './contexts/app-provider'
-import { Route, Router, Switch } from 'wouter'
-import { useHashLocation } from 'wouter/use-hash-location'
+import { Route, HashRouter, Routes } from 'react-router'
 import { Menu as MenuIcon, Pets, BugReport, Water, Person } from '@mui/icons-material'
 import { useState } from 'react'
 import { DateTime } from './components/date-time'
@@ -207,12 +206,12 @@ function AppContent() {
         }}
       >
         <Box sx={{ flex: 1 }}>
-          <Switch>
-            <Route path="/profile" component={ProfileSelector} />
-            <Route path="/" component={FishDisplay} />
-            <Route path="/bugs" component={BugDisplay} />
-            <Route path="/sea-creatures" component={SeaCreatureDisplay} />
-          </Switch>
+          <Routes>
+            <Route path="/profile" element={<ProfileSelector />} />
+            <Route path="/" element={<FishDisplay />} />
+            <Route path="/bugs" element={<BugDisplay />} />
+            <Route path="/sea-creatures" element={<SeaCreatureDisplay />} />
+          </Routes>
         </Box>
       </Container>
     </Box>
@@ -220,14 +219,12 @@ function AppContent() {
 }
 
 function App() {
-  // if host does not contain localhost, use base /acnhtracker
-  const base = window.location.host.includes('localhost') ? '' : '/acnhtracker'
   return (
-    <Router base={base} hook={useHashLocation}>
+    <HashRouter>
       <AppProvider>
         <AppContent />
       </AppProvider>
-    </Router>
+    </HashRouter>
   )
 }
 
