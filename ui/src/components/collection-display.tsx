@@ -85,7 +85,7 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
       }}
     >
       {availableItems.map((item) => (
-        <ItemDisplay key={item.name} item={item} />
+        <ItemDisplay key={item.name} item={item} itemType={name} />
       ))}
     </Box>
   </Paper>

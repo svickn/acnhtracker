@@ -1,19 +1,39 @@
-import { Typography, Box, useTheme, useMediaQuery, Chip, IconButton } from "@mui/material"
+import { Typography, Box, useTheme, useMediaQuery, Chip, IconButton, Button } from "@mui/material"
 import { OpenInNew } from "@mui/icons-material"
 
-import type { ApiResponse } from "../api/types"
+import type { ApiResponse, ItemType } from "../api/types"
 import { useRegion } from "../hooks/use-region"
 import { useDateAndTime } from "../hooks/use-date-time"
+import { useItemTracking } from "../hooks/use-item-tracking"
 
-export function ItemDisplay({item}: {item: ApiResponse}) {
+export function ItemDisplay({item, itemType}: {item: ApiResponse, itemType: ItemType}) {
   const [region] = useRegion()
   const [dateAndTime] = useDateAndTime()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  
+  const { getTracking, setTracking } = useItemTracking(itemType)
+  const tracking = getTracking(item.number.toString())
 
   const itemRegion = region === 'north' ? item.north : item.south;
   const leavingSoon = !itemRegion.months_array.includes(dateAndTime.getMonth() + 2);
+
+  const handleCaughtToggle = () => {
+    const newTracking = {
+      caught: !tracking?.caught,
+      donated: tracking?.donated || false
+    }
+    setTracking(item.number.toString(), newTracking)
+  }
+
+  const handleDonatedToggle = () => {
+    const newTracking = {
+      caught: tracking?.caught || false,
+      donated: !tracking?.donated
+    }
+    setTracking(item.number.toString(), newTracking)
+  }
 
   return (
     <Box sx={{ 
@@ -86,6 +106,40 @@ export function ItemDisplay({item}: {item: ApiResponse}) {
       >
         Times: {itemRegion.times_by_month[dateAndTime.getMonth() + 1]}
       </Typography>
+      
+      {/* Tracking Buttons */}
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: 1,
+        mt: isMobile ? 1 : 1.5,
+        justifyContent: 'center'
+      }}>
+        <Button
+          variant={tracking?.caught ? "contained" : "outlined"}
+          color={tracking?.caught ? "success" : "primary"}
+          onClick={handleCaughtToggle}
+          size={isMobile ? "medium" : "small"}
+          sx={{
+            width: isMobile ? '100%' : 'auto',
+            minWidth: isMobile ? 'auto' : '120px'
+          }}
+        >
+          {tracking?.caught ? "Caught!" : "Not Caught"}
+        </Button>
+        <Button
+          variant={tracking?.donated ? "contained" : "outlined"}
+          color={tracking?.donated ? "success" : "primary"}
+          onClick={handleDonatedToggle}
+          size={isMobile ? "medium" : "small"}
+          sx={{
+            width: isMobile ? '100%' : 'auto',
+            minWidth: isMobile ? 'auto' : '120px'
+          }}
+        >
+          {tracking?.donated ? "Donated!" : "Not Donated"}
+        </Button>
+      </Box>
     </Box>
   )
 }
