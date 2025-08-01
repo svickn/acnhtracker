@@ -7,6 +7,7 @@ import { useEffect } from "react"
 import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery, ToggleButtonGroup, ToggleButton } from "@mui/material"
 import { ItemDisplay } from "./item-display"
 import { useBugData, useFishData, useSeaCreatureData } from "../api"
+import { useItemTracking } from "../hooks/use-item-tracking"
 
 type FilterType = 'all' | 'current' | 'month'
 
@@ -15,8 +16,12 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
   const { response, error, loading } = hook()
   const [availableItems, setAvailableItems] = useState<ApiResponse[]>([])
   const [filterType, setFilterType] = useState<FilterType>('current')
+  const [showCollected, setShowCollected] = useState(true)
+  const [showDonated, setShowDonated] = useState(true)
   const [dateAndTime,,, month, time] = useDateAndTime()
   const [region] = useRegion()
+  const { getTracking, getAllTracking } = useItemTracking(name)
+  const allTracking = getAllTracking()
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -39,10 +44,27 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
           filteredItems = getCurrentlyAvailableItems(response, region as Region, dateAndTime)
       }
       
+      // Apply tracking filters
+      filteredItems = filteredItems.filter((item) => {
+        const tracking = getTracking(item.number.toString())
+        
+        // Filter by collected status
+        if (!showCollected && tracking?.caught) {
+          return false
+        }
+        
+        // Filter by donated status
+        if (!showDonated && tracking?.donated) {
+          return false
+        }
+        
+        return true
+      })
+      
       setAvailableItems(filteredItems)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [response, region, month, time, filterType])
+  }, [response, region, month, time, filterType, showCollected, showDonated, allTracking])
 
   const handleFilterChange = (
     _event: React.MouseEvent<HTMLElement>,
@@ -108,16 +130,59 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
         onChange={handleFilterChange}
         aria-label="filter selection"
         size={isMobile ? "small" : "medium"}
-        sx={{ mb: 1 }}
+        sx={{ 
+          mb: 1,
+          width: isMobile ? '100%' : 'auto'
+        }}
       >
-        <ToggleButton value="all" aria-label="all items">
+        <ToggleButton value="all" aria-label="all items" sx={{ flex: isMobile ? 1 : 'auto' }}>
           All Items
         </ToggleButton>
-        <ToggleButton value="current" aria-label="available now">
+        <ToggleButton value="current" aria-label="available now" sx={{ flex: isMobile ? 1 : 'auto' }}>
           Available Now
         </ToggleButton>
-        <ToggleButton value="month" aria-label="this month">
+        <ToggleButton value="month" aria-label="this month" sx={{ flex: isMobile ? 1 : 'auto' }}>
           This Month
+        </ToggleButton>
+      </ToggleButtonGroup>
+      
+      <ToggleButtonGroup
+        value={showCollected ? "show" : "hide"}
+        exclusive
+        onChange={(_, value) => setShowCollected(value === "show")}
+        aria-label="collected filter"
+        size={isMobile ? "small" : "medium"}
+        sx={{ 
+          mb: 1, 
+          ml: isMobile ? 0 : 1,
+          width: isMobile ? '100%' : 'auto'
+        }}
+      >
+        <ToggleButton value="show" aria-label="show collected" sx={{ flex: isMobile ? 1 : 'auto' }}>
+          Show Collected
+        </ToggleButton>
+        <ToggleButton value="hide" aria-label="hide collected" sx={{ flex: isMobile ? 1 : 'auto' }}>
+          Hide Collected
+        </ToggleButton>
+      </ToggleButtonGroup>
+      
+      <ToggleButtonGroup
+        value={showDonated ? "show" : "hide"}
+        exclusive
+        onChange={(_, value) => setShowDonated(value === "show")}
+        aria-label="donated filter"
+        size={isMobile ? "small" : "medium"}
+        sx={{ 
+          mb: 1, 
+          ml: isMobile ? 0 : 1,
+          width: isMobile ? '100%' : 'auto'
+        }}
+      >
+        <ToggleButton value="show" aria-label="show donated" sx={{ flex: isMobile ? 1 : 'auto' }}>
+          Show Donated
+        </ToggleButton>
+        <ToggleButton value="hide" aria-label="hide donated" sx={{ flex: isMobile ? 1 : 'auto' }}>
+          Hide Donated
         </ToggleButton>
       </ToggleButtonGroup>
     </Box>
