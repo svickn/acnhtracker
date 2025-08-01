@@ -12,6 +12,11 @@ const checkMonth = (month:number, itemRegion:RegionResponse) => {
 const getHours = (availability:string) => {
   if (availability === "NA") return [];
   if (availability === "All day") return Array.from({ length: 24 }, (_, i) => i);
+
+  if (availability.includes("&")) {
+    const [start, end] = availability.split(" & ")
+    return [...getHours(start), ...getHours(end)];
+  }
   
   const [start, end] = availability.split(" – ").length > 1 ? availability.split(" – ") : availability.split(" – ");
   
@@ -34,13 +39,13 @@ const getHours = (availability:string) => {
     for (let hour = startHour; hour <= 23; hour++) {
       hours.push(hour);
     }
-    for (let hour = 0; hour <= endHour; hour++) {
+    for (let hour = 0; hour < endHour; hour++) {
       hours.push(hour);
     }
     return hours;
   } else {
     // Normal range within same day
-    return Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);;
+    return Array.from({ length: endHour - startHour }, (_, i) => startHour + i);;
   }
 }
 
@@ -57,4 +62,8 @@ export const getCurrentlyAvailableItems = (items: ApiResponse[], region:Region, 
 
     return checkMonth(month, itemRegion) && checkHour(month, time, itemRegion);
   });
+}
+
+export const snakeCaseToTitleCase = (str: string) => {
+  return str.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
 }

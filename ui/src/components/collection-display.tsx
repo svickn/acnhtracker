@@ -1,14 +1,15 @@
 import { useState } from "react"
 import { useDateAndTime } from "../hooks/use-date-time"
 import { useRegion } from "../hooks/use-region"
-import { getCurrentlyAvailableItems } from "../api/utils"
-import type { ApiData, ApiResponse, Region } from "../api/types"
+import { getCurrentlyAvailableItems, snakeCaseToTitleCase } from "../api/utils"
+import type { ApiData, ApiResponse, Region, ItemType } from "../api/types"
 import { useEffect } from "react"
 import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery } from "@mui/material"
 import { ItemDisplay } from "./item-display"
 import { useBugData, useFishData, useSeaCreatureData } from "../api"
 
-export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiData}) {
+export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => ApiData}) {
+  const title = snakeCaseToTitleCase(name);
   const { response, error, loading } = hook()
   const [availableItems, setAvailableItems] = useState<ApiResponse[]>([])
   const [dateAndTime,,, month, time] = useDateAndTime()
@@ -65,7 +66,7 @@ export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiDa
     height: 'auto'
   }}>
     <Typography variant={isMobile ? "h6" : "h5"} gutterBottom>
-      {name} Collection
+      {title} Collection
     </Typography>
     <Chip 
       label={`${availableItemCount} ${name} found`}
@@ -92,13 +93,13 @@ export function CollectionDisplay({name, hook}: {name: string, hook: () => ApiDa
 }
 
 export function FishDisplay() {
-  return <CollectionDisplay name="Fish" hook={useFishData} />
+  return <CollectionDisplay name="fish" hook={useFishData} />
 }
 
 export function BugDisplay() {
-  return <CollectionDisplay name="Bug" hook={useBugData} />
+  return <CollectionDisplay name="bug" hook={useBugData} />
 }
 
 export function SeaCreatureDisplay() {
-  return <CollectionDisplay name="Sea Creature" hook={useSeaCreatureData} />
+  return <CollectionDisplay name="sea-creature" hook={useSeaCreatureData} />
 }

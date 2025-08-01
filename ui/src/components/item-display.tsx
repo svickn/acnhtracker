@@ -1,4 +1,5 @@
-import { Typography, Box, useTheme, useMediaQuery } from "@mui/material"
+import { Typography, Box, useTheme, useMediaQuery, Chip, IconButton } from "@mui/material"
+import { OpenInNew } from "@mui/icons-material"
 
 import type { ApiResponse } from "../api/types"
 import { useRegion } from "../hooks/use-region"
@@ -12,6 +13,7 @@ export function ItemDisplay({item}: {item: ApiResponse}) {
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const itemRegion = region === 'north' ? item.north : item.south;
+  const leavingSoon = !itemRegion.months_array.includes(dateAndTime.getMonth() + 2);
 
   return (
     <Box sx={{ 
@@ -22,12 +24,39 @@ export function ItemDisplay({item}: {item: ApiResponse}) {
       borderRadius: 1,
       backgroundColor: 'background.paper'
     }}>
-      <Typography 
-        variant={isMobile ? "subtitle1" : "h6"} 
-        sx={{ mb: isMobile ? 0.5 : 1 }}
-      >
-        {item.name}
-      </Typography>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 1,
+        mb: isMobile ? 0.5 : 1 
+      }}>
+        <IconButton
+          size="small"
+          onClick={() => window.open(item.url, '_blank')}
+          sx={{ 
+            p: 0.5,
+            color: 'text.secondary',
+            '&:hover': {
+              color: 'primary.main'
+            }
+          }}
+        >
+          <OpenInNew fontSize="small" />
+        </IconButton>
+        <Typography 
+          variant={isMobile ? "subtitle1" : "h6"} 
+        >
+          {item.name}
+        </Typography>
+        {leavingSoon && (
+          <Chip 
+            label="Leaving Soon" 
+            size="small" 
+            color="warning" 
+            variant="outlined"
+          />
+        )}
+      </Box>
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'center',
