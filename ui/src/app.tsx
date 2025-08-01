@@ -24,22 +24,12 @@ function AppContent() {
       width: '100%'
     }}>
       <NavBar />
-
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        mt: isMobile ? 1 : 2,
-        mb: isMobile ? 1 : 2
-      }}>
-        {/* DateTime component is now part of NavBar */}
-      </Box>
-
       <Container 
         maxWidth="lg" 
         sx={{ 
           flex: 1,
-          mt: isMobile ? 2 : 4, 
-          mb: isMobile ? 2 : 4,
+          pt: isMobile ? 10 : 8, // Add top padding to account for fixed NavBar
+          pb: isMobile ? 2 : 4,
           px: isSmallMobile ? 2 : 3
         }}
       >

@@ -134,7 +134,9 @@ export const DateTime = () => {
               sx={{ 
                 fontWeight: 'medium',
                 cursor: 'pointer',
-                '&:hover': { opacity: 0.8 }
+                '&:hover': { opacity: 0.8 },
+                fontSize: isSmallMobile ? '0.75rem' : isMobile ? '0.875rem' : '1.25rem',
+                lineHeight: 1.2
               }}
               onClick={handleDateTimeClick}
             >
@@ -161,7 +163,9 @@ export const DateTime = () => {
                 fontWeight: 'medium',
                 cursor: 'pointer',
                 textTransform: 'capitalize',
-                '&:hover': { opacity: 0.8 }
+                '&:hover': { opacity: 0.8 },
+                fontSize: isSmallMobile ? '0.75rem' : isMobile ? '0.875rem' : '1.25rem',
+                lineHeight: 1.2
               }}
               onClick={handleSwapRegion}
             >

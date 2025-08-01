@@ -31,22 +31,31 @@ export function NavBar() {
 
   return (
     <AppBar position="fixed" sx={{ top: 0, left: 0, right: 0, zIndex: 1000 }}>
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
+      <Toolbar sx={{ 
+        justifyContent: 'space-between',
+        minHeight: isMobile ? 72 : 64, // Ensure consistent height
+        py: isMobile ? 1 : 0 // Add vertical padding on mobile to prevent text wrapping
+      }}>
         <Typography 
           variant={isMobile ? "h6" : "h5"} 
           component="div" 
-          sx={{ flexGrow: 0 }}
+          sx={{ 
+            flexGrow: 0,
+            fontSize: isMobile ? '1.1rem' : '1.25rem', // Control font size to prevent wrapping
+            lineHeight: 1.2
+          }}
         >
-          ACNH Collection Tracker
+          ACNH Tracker
         </Typography>
         
         <Box sx={{ 
           display: 'flex', 
-          flexDirection: 'row',
+          flexDirection: isMobile ? 'column' : 'row',
           alignItems: 'center',
-          gap: 1,
+          gap: isMobile ? 0.5 : 1,
           flex: 1,
-          justifyContent: 'center'
+          justifyContent: 'center',
+          minHeight: isMobile ? 48 : 'auto' // Ensure consistent height on mobile
         }}>
           <DateTime />
         </Box>
