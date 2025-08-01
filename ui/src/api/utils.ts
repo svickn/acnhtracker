@@ -64,6 +64,22 @@ export const getCurrentlyAvailableItems = (items: ApiResponse[], region:Region, 
   });
 }
 
+export const getItemsAvailableThisMonth = (items: ApiResponse[], region:Region, date:Date):ApiResponse[] => {
+  const month = date.getMonth() + 1;
+  return items.filter((item) => {
+    const itemRegion = region === 'north' ? item.north : item.south;
+    return checkMonth(month, itemRegion);
+  });
+}
+
+export const getAllItems = (items: ApiResponse[]):ApiResponse[] => {
+  return items;
+}
+
 export const snakeCaseToTitleCase = (str: string) => {
   return str.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()).replace('-', ' ');
+}
+
+export const capitalizeFirstLetter = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }

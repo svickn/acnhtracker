@@ -1,17 +1,20 @@
 import { useState } from "react"
 import { useDateAndTime } from "../hooks/use-date-time"
 import { useRegion } from "../hooks/use-region"
-import { getCurrentlyAvailableItems, snakeCaseToTitleCase } from "../api/utils"
+import { getCurrentlyAvailableItems, getItemsAvailableThisMonth, getAllItems, snakeCaseToTitleCase } from "../api/utils"
 import type { ApiData, ApiResponse, Region, ItemType } from "../api/types"
 import { useEffect } from "react"
-import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery } from "@mui/material"
+import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery, ToggleButtonGroup, ToggleButton } from "@mui/material"
 import { ItemDisplay } from "./item-display"
 import { useBugData, useFishData, useSeaCreatureData } from "../api"
+
+type FilterType = 'all' | 'current' | 'month'
 
 export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => ApiData}) {
   const title = snakeCaseToTitleCase(name);
   const { response, error, loading } = hook()
   const [availableItems, setAvailableItems] = useState<ApiResponse[]>([])
+  const [filterType, setFilterType] = useState<FilterType>('current')
   const [dateAndTime,,, month, time] = useDateAndTime()
   const [region] = useRegion()
 
@@ -20,11 +23,35 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
 
   useEffect(() => {
     if (response) {
-      const availableItems = getCurrentlyAvailableItems(response, region as Region, dateAndTime)
-      setAvailableItems(availableItems)
+      let filteredItems: ApiResponse[]
+      
+      switch (filterType) {
+        case 'all':
+          filteredItems = getAllItems(response)
+          break
+        case 'current':
+          filteredItems = getCurrentlyAvailableItems(response, region as Region, dateAndTime)
+          break
+        case 'month':
+          filteredItems = getItemsAvailableThisMonth(response, region as Region, dateAndTime)
+          break
+        default:
+          filteredItems = getCurrentlyAvailableItems(response, region as Region, dateAndTime)
+      }
+      
+      setAvailableItems(filteredItems)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [response, region, month, time])
+  }, [response, region, month, time, filterType])
+
+  const handleFilterChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newFilter: FilterType,
+  ) => {
+    if (newFilter !== null) {
+      setFilterType(newFilter)
+    }
+  }
 
   if (loading) {
     return (
@@ -67,12 +94,33 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
   }}>
     <Typography variant={isMobile ? "h6" : "h5"} gutterBottom>
       {title} Collection
+      <Chip 
+        label={`${availableItemCount} ${title}${ availableItemCount === 1 ? '' : name !== 'fish' ? 's' : ''} found`}
+        color="primary"
+        sx={{ ml: 1 }}
+      />
     </Typography>
-    <Chip 
-      label={`${availableItemCount} ${title}${availableItemCount === 1 ? '' : 's'} found`}
-      color="primary"
-      sx={{ mb: isMobile ? 1.5 : 2 }}
-    />
+    
+    <Box sx={{ mb: isMobile ? 1.5 : 2 }}>
+      <ToggleButtonGroup
+        value={filterType}
+        exclusive
+        onChange={handleFilterChange}
+        aria-label="filter selection"
+        size={isMobile ? "small" : "medium"}
+        sx={{ mb: 1 }}
+      >
+        <ToggleButton value="all" aria-label="all items">
+          All Items
+        </ToggleButton>
+        <ToggleButton value="current" aria-label="available now">
+          Available Now
+        </ToggleButton>
+        <ToggleButton value="month" aria-label="this month">
+          This Month
+        </ToggleButton>
+      </ToggleButtonGroup>
+    </Box>
     <Box
       sx={{
         backgroundColor: 'grey.50',

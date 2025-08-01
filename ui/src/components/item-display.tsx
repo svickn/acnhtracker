@@ -5,6 +5,7 @@ import type { ApiResponse, ItemType } from "../api/types"
 import { useRegion } from "../hooks/use-region"
 import { useDateAndTime } from "../hooks/use-date-time"
 import { useItemTracking } from "../hooks/use-item-tracking"
+import { capitalizeFirstLetter } from "../api/utils"
 
 export function ItemDisplay({item, itemType}: {item: ApiResponse, itemType: ItemType}) {
   const [region] = useRegion()
@@ -18,6 +19,7 @@ export function ItemDisplay({item, itemType}: {item: ApiResponse, itemType: Item
 
   const itemRegion = region === 'north' ? item.north : item.south;
   const leavingSoon = !itemRegion.months_array.includes(dateAndTime.getMonth() + 2);
+  const availableThisMonth = itemRegion.months_array.includes(dateAndTime.getMonth() + 1);
 
   const handleCaughtToggle = () => {
     const newTracking = {
@@ -66,9 +68,17 @@ export function ItemDisplay({item, itemType}: {item: ApiResponse, itemType: Item
         <Typography 
           variant={isMobile ? "subtitle1" : "h6"} 
         >
-          {item.name}
+          {capitalizeFirstLetter(item.name)}
         </Typography>
-        {leavingSoon && (
+        { availableThisMonth && (
+          <Chip 
+            label="Here This Month" 
+            size="small" 
+            color="success" 
+            variant="outlined"
+          />
+        )}
+        {availableThisMonth && leavingSoon && (
           <Chip 
             label="Leaving Soon" 
             size="small" 
