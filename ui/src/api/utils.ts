@@ -76,6 +76,14 @@ export const getAllItems = (items: ApiResponse[]):ApiResponse[] => {
   return items;
 }
 
+export const getItemsLeavingThisMonth = (items: ApiResponse[], region:Region, date:Date):ApiResponse[] => {
+  const month = date.getMonth() + 1;
+  return items.filter((item) => {
+    const itemRegion = region === 'north' ? item.north : item.south;
+    return checkMonth(month, itemRegion) && !checkMonth(month + 1, itemRegion);
+  });
+}
+
 export const snakeCaseToTitleCase = (str: string) => {
   return str.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()).replace('-', ' ');
 }

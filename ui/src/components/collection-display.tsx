@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useDateAndTime } from "../hooks/use-date-time"
 import { useRegion } from "../hooks/use-region"
-import { getCurrentlyAvailableItems, getItemsAvailableThisMonth, getAllItems, snakeCaseToTitleCase } from "../api/utils"
+import { getCurrentlyAvailableItems, getItemsAvailableThisMonth, getAllItems, snakeCaseToTitleCase, getItemsLeavingThisMonth } from "../api/utils"
 import type { ApiData, ApiResponse, Region, ItemType } from "../api/types"
 import { useEffect } from "react"
 import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery, ToggleButtonGroup, ToggleButton } from "@mui/material"
@@ -9,7 +9,7 @@ import { ItemDisplay } from "./item-display"
 import { useBugData, useFishData, useSeaCreatureData } from "../api"
 import { useItemTracking } from "../hooks/use-item-tracking"
 
-type FilterType = 'all' | 'current' | 'month'
+type FilterType = 'all' | 'current' | 'month' | 'leaving'
 
 export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => ApiData}) {
   const title = snakeCaseToTitleCase(name);
@@ -39,6 +39,9 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
           break
         case 'month':
           filteredItems = getItemsAvailableThisMonth(response, region as Region, dateAndTime)
+          break
+        case 'leaving':
+          filteredItems = getItemsLeavingThisMonth(response, region as Region, dateAndTime)
           break
         default:
           filteredItems = getCurrentlyAvailableItems(response, region as Region, dateAndTime)
@@ -136,13 +139,16 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
         }}
       >
         <ToggleButton value="all" aria-label="all items" sx={{ flex: isMobile ? 1 : 'auto' }}>
-          All Items
+          All
         </ToggleButton>
         <ToggleButton value="current" aria-label="available now" sx={{ flex: isMobile ? 1 : 'auto' }}>
-          Available Now
+          Now
         </ToggleButton>
         <ToggleButton value="month" aria-label="this month" sx={{ flex: isMobile ? 1 : 'auto' }}>
           This Month
+        </ToggleButton>
+        <ToggleButton value="leaving" aria-label="leaving this month" sx={{ flex: isMobile ? 1 : 'auto' }}>
+          Leaving
         </ToggleButton>
       </ToggleButtonGroup>
       
