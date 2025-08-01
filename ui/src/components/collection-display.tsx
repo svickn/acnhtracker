@@ -45,7 +45,7 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
   }, [response, region, month, time, filterType])
 
   const handleFilterChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newFilter: FilterType,
   ) => {
     if (newFilter !== null) {
