@@ -137,6 +137,62 @@ export function AppProvider({ children }: AppProviderProps) {
     setProfiles(newProfiles)
   }
 
+  const exportProfile = (profileIndex: number) => {
+    if (profileIndex >= 0 && profileIndex < profiles.length) {
+      const profile = profiles[profileIndex]
+      const dataStr = JSON.stringify(profile, null, 2)
+      const dataBlob = new Blob([dataStr], { type: 'application/json' })
+      
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(dataBlob)
+      link.download = `${profile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.nt`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(link.href)
+    }
+  }
+
+  const importProfile = async (file: File): Promise<{ needsOverwrite: boolean; existingProfileIndex: number | null; profile: Profile }> => {
+    try {
+      const text = await file.text()
+      const importedProfile = JSON.parse(text)
+      
+      // Validate the imported profile structure
+      if (!importedProfile.name || typeof importedProfile.name !== 'string') {
+        throw new Error('Invalid profile: missing or invalid name')
+      }
+      
+      // Ensure the profile has all required tracking properties
+      const validatedProfile = ensureProfileTracking(importedProfile)
+      
+      // Check if a profile with the same ID already exists
+      const existingProfileIndex = profiles.findIndex(p => p.id === validatedProfile.id)
+      const needsOverwrite = existingProfileIndex !== -1
+      
+      return {
+        needsOverwrite,
+        existingProfileIndex: needsOverwrite ? existingProfileIndex : null,
+        profile: validatedProfile
+      }
+    } catch (error) {
+      console.error('Failed to import profile:', error)
+      throw new Error('Failed to import profile. Please check the file format.')
+    }
+  }
+
+  const addImportedProfile = (profile: Profile, overwriteIndex?: number) => {
+    if (overwriteIndex !== undefined && overwriteIndex >= 0 && overwriteIndex < profiles.length) {
+      // Overwrite existing profile
+      const newProfiles = [...profiles]
+      newProfiles[overwriteIndex] = profile
+      setProfiles(newProfiles)
+    } else {
+      // Add new profile
+      setProfiles([...profiles, profile])
+    }
+  }
+
   const setDateAndTime = (newDate: Date) => {
     const dateString = newDate.toISOString()
     updateCurrentProfile({ dateTime: dateString })
@@ -179,6 +235,9 @@ export function AppProvider({ children }: AppProviderProps) {
     removeProfile,
     setCurrentProfile,
     updateCurrentProfile,
+    exportProfile,
+    importProfile,
+    addImportedProfile,
     getItemTracking,
     setItemTracking,
     getItemTypeTracking,

@@ -20,6 +20,9 @@ export interface AppContextType {
   removeProfile: (index: number) => void
   setCurrentProfile: (index: number) => void
   updateCurrentProfile: (updates: Partial<Profile>) => void
+  exportProfile: (profileIndex: number) => void
+  importProfile: (file: File) => Promise<{ needsOverwrite: boolean; existingProfileIndex: number | null; profile: Profile }>
+  addImportedProfile: (profile: Profile, overwriteIndex?: number) => void
   
   // Item tracking management
   getItemTracking: (itemType: ItemType, itemId: string) => ItemTrackingData | undefined

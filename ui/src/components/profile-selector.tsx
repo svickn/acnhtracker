@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
   Box,
   Typography,
@@ -17,10 +17,13 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Alert,
+  Snackbar
 } from '@mui/material'
-import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material'
+import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon, FileDownload as ExportIcon, FileUpload as ImportIcon } from '@mui/icons-material'
 import { useAppContext } from '../contexts/app-context'
+import type { Profile } from '../contexts/app-context'
 
 export function ProfileSelector() {
   const { 
@@ -30,7 +33,10 @@ export function ProfileSelector() {
     addProfile, 
     removeProfile, 
     setCurrentProfile,
-    updateCurrentProfile 
+    updateCurrentProfile,
+    exportProfile,
+    importProfile,
+    addImportedProfile
   } = useAppContext()
   
   const [newProfileName, setNewProfileName] = useState('')
@@ -38,6 +44,10 @@ export function ProfileSelector() {
   const [editingName, setEditingName] = useState('')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [profileToDelete, setProfileToDelete] = useState<number | null>(null)
+  const [importError, setImportError] = useState<string | null>(null)
+  const [overwriteDialogOpen, setOverwriteDialogOpen] = useState(false)
+  const [profileToOverwrite, setProfileToOverwrite] = useState<{ profile: Profile; existingIndex: number } | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -85,6 +95,58 @@ export function ProfileSelector() {
   const handleCancelEdit = () => {
     setIsEditing(false)
     setEditingName('')
+  }
+
+  const handleExportProfile = () => {
+    exportProfile(currentProfileIndex)
+  }
+
+  const handleImportProfile = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      try {
+        const result = await importProfile(file)
+        
+        if (result.needsOverwrite) {
+          // Show overwrite confirmation dialog
+          setProfileToOverwrite({
+            profile: result.profile,
+            existingIndex: result.existingProfileIndex!
+          })
+          setOverwriteDialogOpen(true)
+        } else {
+          // Add new profile directly
+          addImportedProfile(result.profile)
+          setImportError(null)
+        }
+      } catch (error) {
+        setImportError(error instanceof Error ? error.message : 'Failed to import profile')
+      }
+      // Reset the input
+      event.target.value = ''
+    }
+  }
+
+  const handleCloseError = () => {
+    setImportError(null)
+  }
+
+  const handleConfirmOverwrite = () => {
+    if (profileToOverwrite) {
+      addImportedProfile(profileToOverwrite.profile, profileToOverwrite.existingIndex)
+      setOverwriteDialogOpen(false)
+      setProfileToOverwrite(null)
+      setImportError(null)
+    }
+  }
+
+  const handleCancelOverwrite = () => {
+    setOverwriteDialogOpen(false)
+    setProfileToOverwrite(null)
   }
 
   return (
@@ -147,6 +209,46 @@ export function ProfileSelector() {
             )}
           </Box>
         )}
+      </Box>
+
+      {/* Export/Import Section */}
+      <Box sx={{ mb: isMobile ? 1.5 : 2 }}>
+        <Typography variant={isMobile ? "body1" : "subtitle1"} gutterBottom>
+          Export / Import
+        </Typography>
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 1, 
+          alignItems: 'center',
+          flexDirection: isSmallMobile ? 'column' : 'row',
+          '& > *': { width: isSmallMobile ? '100%' : 'auto' }
+        }}>
+          <Button 
+            size="small" 
+            variant="outlined" 
+            onClick={handleExportProfile}
+            startIcon={<ExportIcon />}
+            fullWidth={isSmallMobile}
+          >
+            {isSmallMobile ? 'Export' : 'Export Profile'}
+          </Button>
+          <Button 
+            size="small" 
+            variant="outlined" 
+            onClick={handleImportProfile}
+            startIcon={<ImportIcon />}
+            fullWidth={isSmallMobile}
+          >
+            {isSmallMobile ? 'Import' : 'Import Profile'}
+          </Button>
+        </Box>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          accept=".nt,.json"
+          style={{ display: 'none' }}
+        />
       </Box>
 
       <Divider sx={{ my: isMobile ? 1.5 : 2 }} />
@@ -268,6 +370,42 @@ export function ProfileSelector() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Overwrite Confirmation Dialog */}
+      <Dialog
+        open={overwriteDialogOpen}
+        onClose={handleCancelOverwrite}
+        aria-labelledby="overwrite-dialog-title"
+        aria-describedby="overwrite-dialog-description"
+      >
+        <DialogTitle id="overwrite-dialog-title">Profile Already Exists</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="overwrite-dialog-description">
+            A profile with the same ID already exists: "{profileToOverwrite ? profiles[profileToOverwrite.existingIndex]?.name : ''}". 
+            Do you want to overwrite the existing profile with the imported data?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelOverwrite} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmOverwrite} color="warning" variant="contained">
+            Overwrite
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Error Snackbar */}
+      <Snackbar
+        open={!!importError}
+        autoHideDuration={6000}
+        onClose={handleCloseError}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+          {importError}
+        </Alert>
+      </Snackbar>
     </Paper>
   )
 } 
