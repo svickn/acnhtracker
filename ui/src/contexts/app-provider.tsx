@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react"
-import type { AppContextType, Profile } from "./app-context"
+import type { AppContextType, Profile, CollectionSettings } from "./app-context"
 import type { ItemType, ItemTrackingData, ItemTypeTracking } from "../api/types"
 import { AppContext } from "./app-context"
 
@@ -10,6 +10,13 @@ interface AppProviderProps {
 // Helper function to generate unique ID
 const generateId = () => Math.random().toString(36).substr(2, 9)
 
+// Default collection settings
+const defaultCollectionSettings: CollectionSettings = {
+  filterType: 'current',
+  showCollected: true,
+  showDonated: true
+}
+
 // Helper function to migrate old single profile to new multi-profile format
 const defaultProfile = (): Profile[] => [{
     id: generateId(),
@@ -17,7 +24,12 @@ const defaultProfile = (): Profile[] => [{
     region: 'north',
     fish: {},
     bug: {},
-    'sea-creature': {}
+    'sea-creature': {},
+    collectionSettings: {
+      fish: defaultCollectionSettings,
+      bug: defaultCollectionSettings,
+      'sea-creature': defaultCollectionSettings
+    }
   }]
 
 // Helper function to ensure a profile has all required tracking properties
@@ -29,7 +41,12 @@ const ensureProfileTracking = (profile: Partial<Profile>): Profile => {
     dateTime: profile.dateTime,
     fish: profile.fish || {},
     bug: profile.bug || {},
-    'sea-creature': profile['sea-creature'] || {}
+    'sea-creature': profile['sea-creature'] || {},
+    collectionSettings: {
+      fish: profile.collectionSettings?.fish || defaultCollectionSettings,
+      bug: profile.collectionSettings?.bug || defaultCollectionSettings,
+      'sea-creature': profile.collectionSettings?.['sea-creature'] || defaultCollectionSettings
+    }
   }
 }
 
@@ -109,7 +126,12 @@ export function AppProvider({ children }: AppProviderProps) {
       region: 'north',
       fish: {},
       bug: {},
-      'sea-creature': {}
+      'sea-creature': {},
+      collectionSettings: {
+        fish: defaultCollectionSettings,
+        bug: defaultCollectionSettings,
+        'sea-creature': defaultCollectionSettings
+      }
     }
     setProfiles([...profiles, newProfile])
   }
@@ -227,6 +249,21 @@ export function AppProvider({ children }: AppProviderProps) {
     return currentProfile[itemType] || {}
   }
 
+  // Collection settings management functions
+  const getCollectionSettings = (itemType: ItemType): CollectionSettings => {
+    return currentProfile.collectionSettings[itemType] || defaultCollectionSettings
+  }
+
+  const setCollectionSettings = (itemType: ItemType, settings: Partial<CollectionSettings>) => {
+    const currentSettings = currentProfile.collectionSettings[itemType] || defaultCollectionSettings
+    const updatedSettings = { ...currentSettings, ...settings }
+    const updatedCollectionSettings = {
+      ...currentProfile.collectionSettings,
+      [itemType]: updatedSettings
+    }
+    updateCurrentProfile({ collectionSettings: updatedCollectionSettings })
+  }
+
   const value: AppContextType = {
     profiles,
     currentProfileIndex: validCurrentIndex,
@@ -241,6 +278,8 @@ export function AppProvider({ children }: AppProviderProps) {
     getItemTracking,
     setItemTracking,
     getItemTypeTracking,
+    getCollectionSettings,
+    setCollectionSettings,
     dateAndTime,
     setDateAndTime,
     clearDateAndTime,

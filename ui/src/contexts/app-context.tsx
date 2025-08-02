@@ -1,6 +1,12 @@
 import { createContext, useContext } from 'react'
 import type { ItemTypeTracking, ItemType, ItemTrackingData } from '../api/types'
 
+export interface CollectionSettings {
+  filterType: 'all' | 'current' | 'month' | 'leaving'
+  showCollected: boolean
+  showDonated: boolean
+}
+
 export interface Profile {
   id: string
   name: string
@@ -9,6 +15,11 @@ export interface Profile {
   fish: ItemTypeTracking
   bug: ItemTypeTracking
   'sea-creature': ItemTypeTracking
+  collectionSettings: {
+    fish: CollectionSettings
+    bug: CollectionSettings
+    'sea-creature': CollectionSettings
+  }
 }
 
 export interface AppContextType {
@@ -28,6 +39,10 @@ export interface AppContextType {
   getItemTracking: (itemType: ItemType, itemId: string) => ItemTrackingData | undefined
   setItemTracking: (itemType: ItemType, itemId: string, tracking: ItemTrackingData) => void
   getItemTypeTracking: (itemType: ItemType) => ItemTypeTracking
+  
+  // Collection settings management
+  getCollectionSettings: (itemType: ItemType) => CollectionSettings
+  setCollectionSettings: (itemType: ItemType, settings: Partial<CollectionSettings>) => void
   
   // Date and time state
   dateAndTime: Date

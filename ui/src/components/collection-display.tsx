@@ -9,6 +9,7 @@ import { KeyboardArrowUp } from '@mui/icons-material'
 import { ItemDisplay } from "./item-display"
 import { useBugData, useFishData, useSeaCreatureData } from "../api"
 import { useItemTracking } from "../hooks/use-item-tracking"
+import { useAppContext } from "../contexts/app-context"
 
 type FilterType = 'all' | 'current' | 'month' | 'leaving'
 const SCROLL_THRESHOLD = 600
@@ -17,15 +18,17 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
   const title = snakeCaseToTitleCase(name);
   const { response, error, loading } = hook()
   const [availableItems, setAvailableItems] = useState<ApiResponse[]>([])
-  const [filterType, setFilterType] = useState<FilterType>('current')
-  const [showCollected, setShowCollected] = useState(true)
-  const [showDonated, setShowDonated] = useState(true)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
   const [dateAndTime,,, month, time] = useDateAndTime()
   const [region] = useRegion()
   const { getTracking, getAllTracking } = useItemTracking(name)
   const allTracking = getAllTracking()
   const containerRef = useRef<HTMLDivElement>(null)
+  const { getCollectionSettings, setCollectionSettings } = useAppContext()
+  
+  // Get settings from profile
+  const settings = getCollectionSettings(name)
+  const { filterType, showCollected, showDonated } = settings
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -105,7 +108,7 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
     newFilter: FilterType,
   ) => {
     if (newFilter !== null) {
-      setFilterType(newFilter)
+      setCollectionSettings(name, { filterType: newFilter })
     }
   }
 
@@ -189,7 +192,7 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
       <ToggleButtonGroup
         value={showCollected ? "show" : "hide"}
         exclusive
-        onChange={(_, value) => setShowCollected(value === "show")}
+        onChange={(_, value) => setCollectionSettings(name, { showCollected: value === "show" })}
         aria-label="collected filter"
         size={isMobile ? "small" : "medium"}
         sx={{ 
@@ -209,7 +212,7 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
       <ToggleButtonGroup
         value={showDonated ? "show" : "hide"}
         exclusive
-        onChange={(_, value) => setShowDonated(value === "show")}
+        onChange={(_, value) => setCollectionSettings(name, { showDonated: value === "show" })}
         aria-label="donated filter"
         size={isMobile ? "small" : "medium"}
         sx={{ 
