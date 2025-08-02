@@ -30,11 +30,13 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
+  const scrollToTop = () => {
+    document.body.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   // Scroll to top when switching between collection types
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
+    scrollToTop();
   }, [name])
 
     // Handle scroll events to show/hide scroll to top button
@@ -247,15 +249,11 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
     {/* Floating scroll to top button */}
     {showScrollToTop && (
       <Box
-      onClick={() => {
-        if (containerRef.current) {
-          containerRef.current.scrollIntoView({ behavior: 'smooth' })
-        }
-      }}
+      onClick={scrollToTop}
       sx={{
         position: 'fixed',
-        bottom: 16,
-        right: 16,
+        bottom: 32,
+        right: 32,
         zIndex: 9999,
         backgroundColor: 'primary.main',
         color: 'white',
