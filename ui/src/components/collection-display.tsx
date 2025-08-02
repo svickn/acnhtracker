@@ -4,13 +4,14 @@ import { useRegion } from "../hooks/use-region"
 import { getCurrentlyAvailableItems, getItemsAvailableThisMonth, getAllItems, snakeCaseToTitleCase, getItemsLeavingThisMonth } from "../api/utils"
 import type { ApiData, ApiResponse, Region, ItemType } from "../api/types"
 import { useEffect, useRef } from "react"
-import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery, ToggleButtonGroup, ToggleButton, Fab } from "@mui/material"
+import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery, ToggleButtonGroup, ToggleButton } from "@mui/material"
 import { KeyboardArrowUp } from '@mui/icons-material'
 import { ItemDisplay } from "./item-display"
 import { useBugData, useFishData, useSeaCreatureData } from "../api"
 import { useItemTracking } from "../hooks/use-item-tracking"
 
 type FilterType = 'all' | 'current' | 'month' | 'leaving'
+const SCROLL_THRESHOLD = 600
 
 export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => ApiData}) {
   const title = snakeCaseToTitleCase(name);
@@ -19,6 +20,7 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
   const [filterType, setFilterType] = useState<FilterType>('current')
   const [showCollected, setShowCollected] = useState(true)
   const [showDonated, setShowDonated] = useState(true)
+  const [showScrollToTop, setShowScrollToTop] = useState(false)
   const [dateAndTime,,, month, time] = useDateAndTime()
   const [region] = useRegion()
   const { getTracking, getAllTracking } = useItemTracking(name)
@@ -34,6 +36,24 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
       containerRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }, [name])
+
+    // Handle scroll events to show/hide scroll to top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollToTop(document.body.scrollTop > SCROLL_THRESHOLD)
+    }
+
+    // Initial check
+    handleScroll()
+
+    const timer = setInterval(() => {
+      handleScroll()
+    }, 2000)
+    
+    return () => {
+      clearInterval(timer)
+    }
+  }, [])
 
   useEffect(() => {
     if (response) {
@@ -123,6 +143,7 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
   return (
     <>
       <Box ref={containerRef} sx={{ mt: isMobile ? 2 : 3 }} key={name}>
+        
       <Paper sx={{ 
         p: isMobile ? 2 : 3,
         minHeight: 'fit-content',
@@ -224,9 +245,8 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
     </Box>
     
     {/* Floating scroll to top button */}
-    <Fab
-      color="primary"
-      aria-label="scroll to top"
+    {showScrollToTop && (
+      <Box
       onClick={() => {
         if (containerRef.current) {
           containerRef.current.scrollIntoView({ behavior: 'smooth' })
@@ -236,11 +256,26 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
         position: 'fixed',
         bottom: 16,
         right: 16,
-        zIndex: 1000,
+        zIndex: 9999,
+        backgroundColor: 'primary.main',
+        color: 'white',
+        width: 56,
+        height: 56,
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '1.5rem',
+        cursor: 'pointer',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+        '&:hover': {
+          backgroundColor: 'primary.dark',
+        }
       }}
-    >
-      <KeyboardArrowUp />
-    </Fab>
+            >
+          <KeyboardArrowUp />
+        </Box>
+      )}
     </>
   )
 }
