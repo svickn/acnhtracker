@@ -3,8 +3,9 @@ import { useDateAndTime } from "../hooks/use-date-time"
 import { useRegion } from "../hooks/use-region"
 import { getCurrentlyAvailableItems, getItemsAvailableThisMonth, getAllItems, snakeCaseToTitleCase, getItemsLeavingThisMonth } from "../api/utils"
 import type { ApiData, ApiResponse, Region, ItemType } from "../api/types"
-import { useEffect } from "react"
-import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery, ToggleButtonGroup, ToggleButton } from "@mui/material"
+import { useEffect, useRef } from "react"
+import { Alert, Box, Chip, CircularProgress, Container, Paper, Typography, useTheme, useMediaQuery, ToggleButtonGroup, ToggleButton, Fab } from "@mui/material"
+import { KeyboardArrowUp } from '@mui/icons-material'
 import { ItemDisplay } from "./item-display"
 import { useBugData, useFishData, useSeaCreatureData } from "../api"
 import { useItemTracking } from "../hooks/use-item-tracking"
@@ -22,9 +23,17 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
   const [region] = useRegion()
   const { getTracking, getAllTracking } = useItemTracking(name)
   const allTracking = getAllTracking()
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
+  // Scroll to top when switching between collection types
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [name])
 
   useEffect(() => {
     if (response) {
@@ -111,12 +120,14 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
 
   const availableItemCount = availableItems.length
 
-  return <Box sx={{ mt: isMobile ? 2 : 3 }} key={name}>
-  <Paper sx={{ 
-    p: isMobile ? 2 : 3,
-    minHeight: 'fit-content',
-    height: 'auto'
-  }}>
+  return (
+    <>
+      <Box ref={containerRef} sx={{ mt: isMobile ? 2 : 3 }} key={name}>
+      <Paper sx={{ 
+        p: isMobile ? 2 : 3,
+        minHeight: 'fit-content',
+        height: 'auto'
+      }}>
     <Typography variant={isMobile ? "h6" : "h5"} gutterBottom>
       {title} Collection
       <Chip 
@@ -209,8 +220,29 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
           <ItemDisplay key={item.number} item={item} itemType={name} />
         ))}
     </Box>
-  </Paper>
-</Box>
+        </Paper>
+    </Box>
+    
+    {/* Floating scroll to top button */}
+    <Fab
+      color="primary"
+      aria-label="scroll to top"
+      onClick={() => {
+        if (containerRef.current) {
+          containerRef.current.scrollIntoView({ behavior: 'smooth' })
+        }
+      }}
+      sx={{
+        position: 'fixed',
+        bottom: 16,
+        right: 16,
+        zIndex: 1000,
+      }}
+    >
+      <KeyboardArrowUp />
+    </Fab>
+    </>
+  )
 }
 
 export function FishDisplay() {

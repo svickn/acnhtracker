@@ -35,8 +35,8 @@ function AppContent() {
       >
         <Box sx={{ flex: 1 }}>
           <Routes>
-            <Route path="/profile" element={<ProfileSelector />} />
             <Route path="/" element={<FishDisplay />} />
+            <Route path="/profile" element={<ProfileSelector />} />
             <Route path="/bugs" element={<BugDisplay />} />
             <Route path="/sea-creatures" element={<SeaCreatureDisplay />} />
           </Routes>
