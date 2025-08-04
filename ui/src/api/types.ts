@@ -1,5 +1,6 @@
 export type Region = 'north' | 'south';
 export type ItemType = 'fish' | 'bug' | 'sea-creature';
+export type ItemSize = 'Tiny' | 'Small' | 'Medium' | 'Large' | 'Huge' | 'Very large' | 'Very large (finned)' | 'Long' | undefined;
 
 export type ItemTrackingData = {
   caught: boolean;
@@ -19,7 +20,7 @@ export type ApiResponse = {
   url: string;
   number: number;
   image_url: string;
-  render_url: string;
+  shadow_size: ItemSize;
   location: string;
   north: RegionResponse;
   south: RegionResponse;

@@ -14,7 +14,12 @@ import { useAppContext } from "../contexts/app-context"
 type FilterType = 'all' | 'current' | 'month' | 'leaving'
 const SCROLL_THRESHOLD = 600
 
-export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => ApiData}) {
+type CollectionDisplayProps = {
+  name: ItemType
+  hook: () => ApiData
+}
+
+export function CollectionDisplay({name, hook}: CollectionDisplayProps) {
   const title = snakeCaseToTitleCase(name);
   const { response, error, loading } = hook()
   const [availableItems, setAvailableItems] = useState<ApiResponse[]>([])
@@ -25,7 +30,7 @@ export function CollectionDisplay({name, hook}: {name: ItemType, hook: () => Api
   const allTracking = getAllTracking()
   const containerRef = useRef<HTMLDivElement>(null)
   const { getCollectionSettings, setCollectionSettings } = useAppContext()
-  
+
   // Get settings from profile
   const settings = getCollectionSettings(name)
   const { filterType, showCollected, showDonated } = settings
