@@ -1,8 +1,8 @@
 {
-  "name": "acnhtracker",
+  "name": "nooktracker",
   "private": true,
   "version": "0.0.1",
-  "homepage": "https://stacyvicknair.com/acnhtracker/",
+  "homepage": "https://nooktracker.com",
   "type": "module",
   "scripts": {
     "predeploy": "pnpm run build",

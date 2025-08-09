@@ -26,30 +26,31 @@ export function NavBar() {
     { path: '/', label: 'Fish', icon: <Pets /> },
     { path: '/bugs', label: 'Bugs', icon: <BugReport /> },
     { path: '/sea-creatures', label: 'Sea Creatures', icon: <Water /> },
-    { path: '/profile', label: 'Profile', icon: <Person /> }
+    { path: '/profile', label: 'Profile', icon: <Person /> },
+    // { path: '/about', label: 'About', icon: <Info /> }
   ]
 
   return (
     <AppBar position="fixed" sx={{ top: 0, left: 0, right: 0, zIndex: 1000 }}>
-      <Toolbar sx={{ 
+      <Toolbar sx={{
         justifyContent: 'space-between',
         minHeight: isMobile ? 72 : 64, // Ensure consistent height
         py: isMobile ? 1 : 0 // Add vertical padding on mobile to prevent text wrapping
       }}>
-        <Typography 
-          variant={isMobile ? "h6" : "h5"} 
-          component="div" 
-          sx={{ 
+        <Typography
+          variant={isMobile ? "h6" : "h5"}
+          component="div"
+          sx={{
             flexGrow: 0,
             fontSize: isMobile ? '1.1rem' : '1.25rem', // Control font size to prevent wrapping
             lineHeight: 1.2
           }}
         >
-          ACNH Tracker
+          Nook Tracker
         </Typography>
-        
-        <Box sx={{ 
-          display: 'flex', 
+
+        <Box sx={{
+          display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           alignItems: 'center',
           gap: isMobile ? 0.5 : 1,
@@ -59,7 +60,7 @@ export function NavBar() {
         }}>
           <DateTime />
         </Box>
-        
+
         <Box sx={{ flexGrow: 0 }}>
           <IconButton
             size="large"
@@ -70,14 +71,14 @@ export function NavBar() {
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
             onClick={handleMenuClick}
-            sx={{ 
+            sx={{
               display: 'flex', // Show on all screen sizes for now
               ml: 1
             }}
           >
             <MenuIcon />
           </IconButton>
-          
+
           <Menu
             id="navigation-menu"
             anchorEl={anchorEl}
@@ -129,10 +130,10 @@ export function NavBar() {
             }}
           >
             {menuItems.map((item) => (
-              <MenuItem 
-                key={item.path} 
+              <MenuItem
+                key={item.path}
                 onClick={() => handleNavigation(item.path)}
-                sx={{ 
+                sx={{
                   minWidth: isMobile ? '100%' : 150,
                   py: isMobile ? 2 : 1,
                   px: isMobile ? 3 : 2,
@@ -146,7 +147,7 @@ export function NavBar() {
                 <ListItemIcon sx={{ minWidth: isMobile ? 48 : 40 }}>
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText 
+                <ListItemText
                   primary={item.label}
                   sx={{
                     '& .MuiListItemText-primary': {

@@ -59,3 +59,7 @@ export const useBugData = () => {
 export const useSeaCreatureData = () => {
   return useData('/nh/sea', 'seaCreatureData');
 };
+
+export const useArtData = () => {
+  return useData('/nh/art', 'artData');
+};

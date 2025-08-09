@@ -4,11 +4,6 @@ const checkMonth = (month:number, itemRegion:RegionResponse) => {
   return itemRegion.months_array.includes(month);
 }
 
-// availability is a string like "4 PM - 9 AM"
-// if "NA" return an empty array
-// if "All Day" return an array of hours from 0 to 23
-// example: "4 PM – 9 AM" returns [16, 17, 18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7, 8]
-// return an array of hours as numbers
 const getHours = (availability:string):number[] => {
   if (availability === "NA") return [];
   if (availability === "All day") return Array.from({ length: 24 }, (_, i) => i);
@@ -17,7 +12,12 @@ const getHours = (availability:string):number[] => {
     const [start, end] = availability.split(" & ")
     return [...getHours(start), ...getHours(end)];
   }
-  
+
+  if (availability.includes("; ")) {
+    const [start, end] = availability.split("; ");
+    return [...getHours(start), ...getHours(end)];
+  }
+
   const [start, end] = availability.split(" – ").length > 1 ? availability.split(" – ") : availability.split(" – ");
   
   // Parse start time

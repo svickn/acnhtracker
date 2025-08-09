@@ -1,4 +1,4 @@
-# ACNH Tracker
+# NookTracker.com
 
 A web application for tracking Animal Crossing: New Horizons items (fish, bugs, and sea creatures) across different profiles and regions.
 
